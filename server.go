@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -10,8 +11,9 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/pb", handlerProtobuf)
-	http.HandleFunc("/mp", handlerMsgpack)
+	http.HandleFunc("/protobuf", handlerProtobuf)
+	http.HandleFunc("/msgpack", handlerMsgpack)
+	http.HandleFunc("/json", handlerJSON)
 
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
@@ -38,7 +40,7 @@ func handlerProtobuf(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-type MsgpackProduct struct {
+type product struct {
 	Id          int64
 	Name        string
 	Description string
@@ -47,7 +49,7 @@ type MsgpackProduct struct {
 }
 
 func handlerMsgpack(w http.ResponseWriter, r *http.Request) {
-	p := &MsgpackProduct{
+	p := &product{
 		Id:          99,
 		Name:        "Soccer Ball",
 		Description: "This is a golden ball!!",
@@ -61,6 +63,25 @@ func handlerMsgpack(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/x-msgpack")
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
+}
+
+func handlerJSON(w http.ResponseWriter, r *http.Request) {
+	p := &product{
+		Id:          99,
+		Name:        "Soccer Ball",
+		Description: "This is a golden ball!!",
+		Price:       18900,
+		Colors:      []string{"red", "yello", "blue"},
+	}
+
+	res, err := json.Marshal(p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }
