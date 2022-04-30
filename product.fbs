@@ -1,0 +1,15 @@
+namespace products;
+
+table Product {
+  id:ulong;
+  name:string;
+  description:string;
+  price:int;
+  colors:[string];
+}
+table ProductList {
+  products:[Product];
+}
+
+root_type ProductList;
+
